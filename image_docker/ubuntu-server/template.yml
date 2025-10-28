@@ -1,0 +1,20 @@
+name: "ubuntu-server"
+description: "Ubuntu Server avec terminal web (Gotty)"
+image: "ubuntu-server-gotty:latest"
+restart: "unless-stopped"
+
+# Ports exposés dans le conteneur
+# Docker choisira automatiquement un port libre côté hôte
+ports:
+  - "8080"
+
+# Volume persistant
+volumes:
+  - "./ubuntu-server-data:/data"
+
+# Terminal interactif
+stdin_open: true
+tty: true
+
+# Pour le lien web dans Flask
+web_port: 8080

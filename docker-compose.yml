@@ -1,0 +1,51 @@
+volumes:
+  dbdata:
+  portainer_data:
+
+services:
+  db:
+    image: mariadb:10.5          # version AMD64 par défaut
+    container_name: mysql
+    restart: always
+    volumes:
+      - dbdata:/var/lib/mysql
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: project_web_site
+      MYSQL_USER: root
+      MYSQL_PASSWORD: progtr00
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin   # version AMD64 par défaut
+    container_name: phpmyadmin
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: progtr00
+
+  flask-app:
+    build: .
+    container_name: flask_app
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  portainer:
+    image: portainer/portainer-ce:latest  # version AMD64 par défaut
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"   # Interface web
+      - "9443:9443"   # Interface HTTPS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # Accès au démon Docker
+      - portainer_data:/data                        # Persistance des données Portainer

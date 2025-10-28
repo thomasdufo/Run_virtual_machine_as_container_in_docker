@@ -1,0 +1,25 @@
+name: "ubuntu-desktop"
+description: "Ubuntu Desktop avec interface noVNC"
+image: "ubuntu-desktop:latest"
+restart: "unless-stopped"
+
+# Ports exposés dans le conteneur
+# Docker choisira automatiquement un port libre côté hôte
+ports:
+  - "80"
+
+# Variables d'environnement
+env:
+  - "USER=administrateur"
+  - "PASSWORD=progtr00"
+
+# Volume persistant
+volumes:
+  - "./ubuntu-desktop-data:/home/ubuntu"
+
+# Terminal interactif
+stdin_open: true
+tty: true
+
+# Pour le lien web dans Flask
+web_port: 80

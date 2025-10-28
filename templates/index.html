@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">🚀 Docker Deploy Dashboard</h1>
+
+<h2>Images locales</h2>
+<ul class="list-group mb-4">
+  {% for img in images %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    {{ img }}
+    <form method="post" action="{{ url_for('deploy', image_name=img) }}" class="d-inline">
+      <input type="text" name="container_name" placeholder="Nom conteneur" required>
+      <button type="submit" class="btn btn-success btn-sm">Deploy</button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+
+<h2>Conteneurs actifs</h2>
+<table class="table table-striped">
+  <thead>
+    <tr><th>Nom</th><th>Image</th><th>Status</th><th>Ports</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for c in containers %}
+    <tr>
+      <td>{{ c.name }}</td>
+      <td>{{ c.image }}</td>
+      <td>{{ c.status }}</td>
+      <td>
+        {% for port, host in c.ports.items() %}
+          {{ host }} → {{ port }}
+          {% if port.split("/")[0]|int == web_ports.get(c.image.split(":")[0], 0) %}
+            <a href="http://localhost:{{ host }}" target="_blank" class="btn btn-link btn-sm">🌐 Ouvrir</a>
+          {% endif %}
+          <br>
+        {% endfor %}
+      </td>
+      <td>
+        {% if c.status == "running" %}
+          <a href="{{ url_for('stop', container_id=c.id) }}" class="btn btn-warning btn-sm">Stop</a>
+        {% else %}
+          <a href="{{ url_for('start', container_id=c.id) }}" class="btn btn-success btn-sm">Start</a>
+        {% endif %}
+        <a href="{{ url_for('remove', container_id=c.id) }}" class="btn btn-danger btn-sm">Remove</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
