@@ -9,14 +9,14 @@ RUN apt update && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 # Créer un utilisateur standard
-RUN useradd -m -s /bin/bash kali && echo "kali:kali" | chpasswd && adduser kali sudo
+RUN useradd -m -s /bin/bash kali && echo "kali:progtr00" | chpasswd && adduser kali sudo
 
 # Copier le script de démarrage
 COPY startup.sh /usr/local/bin/startup.sh
 RUN chmod +x /usr/local/bin/startup.sh
 
 # Variables d'environnement
-ENV USER=administrateur
+ENV USER=kali
 ENV PASSWORD=progtr00
 ENV VNC_PASSWORD=progtr00
 ENV DISPLAY=:1

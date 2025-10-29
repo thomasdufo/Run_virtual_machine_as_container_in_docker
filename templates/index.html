@@ -30,7 +30,11 @@
         {% for port, host in c.ports.items() %}
           {{ host }} → {{ port }}
           {% if port.split("/")[0]|int == web_ports.get(c.image.split(":")[0], 0) %}
-            <a href="http://{{ server_ip }}:{{ host }}" target="_blank" class="btn btn-link btn-sm">🌐 Ouvrir</a>
+            {% if "kali" in c.image %}
+              <a href="http://{{ server_ip }}:{{ host }}/vnc_auto.html" target="_blank" class="btn btn-link btn-sm">🌐 Ouvrir</a>
+            {% else %}
+              <a href="http://{{ server_ip }}:{{ host }}" target="_blank" class="btn btn-link btn-sm">🌐 Ouvrir</a>
+            {% endif %}
           {% endif %}
           <br>
         {% endfor %}
