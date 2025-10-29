@@ -5,7 +5,7 @@ app = Flask(__name__)
 app.secret_key = "supersecret"
 client = docker.from_env()
 
-# Ports internes pour chaque image (pour le bouton "Ouvrir")
+# 🔹 Ports internes utilisés pour chaque image
 WEB_PORTS = {
     "ubuntu-desktop": 80,
     "kali": 8080,
@@ -14,28 +14,47 @@ WEB_PORTS = {
 
 @app.route("/")
 def index():
-    # Liste des images locales
+    # 🔹 Images autorisées
+    ALLOWED_IMAGES = [
+        "kali:latest",
+        "ubuntu-desktop:latest",
+        "ubuntu-server:latest"
+    ]
+
+    # 🔹 On récupère l'adresse IP utilisée par le navigateur
+    server_ip = request.host.split(":")[0]
+
+    # 🔹 Liste filtrée des images locales
     images = []
     for img in client.images.list():
         if img.tags:
             for tag in img.tags:
-                images.append(tag)
+                if tag in ALLOWED_IMAGES:
+                    images.append(tag)
 
-    # Liste des conteneurs
+    # 🔹 Liste filtrée des conteneurs associés à ces images
     containers = []
     for c in client.containers.list(all=True):
         c.reload()
-        ports = c.attrs["NetworkSettings"]["Ports"] or {}
-        bindings = {k: v[0]["HostPort"] for k, v in ports.items() if v}
-        containers.append({
-            "id": c.short_id,
-            "name": c.name,
-            "image": c.image.tags[0] if c.image.tags else c.image.id,
-            "status": c.status,
-            "ports": bindings
-        })
+        img_tag = c.image.tags[0] if c.image.tags else c.image.id
+        if img_tag in ALLOWED_IMAGES:
+            ports = c.attrs["NetworkSettings"]["Ports"] or {}
+            bindings = {k: v[0]["HostPort"] for k, v in ports.items() if v}
+            containers.append({
+                "id": c.short_id,
+                "name": c.name,
+                "image": img_tag,
+                "status": c.status,
+                "ports": bindings
+            })
 
-    return render_template("index.html", images=images, containers=containers, web_ports=WEB_PORTS)
+    return render_template(
+        "index.html",
+        images=images,
+        containers=containers,
+        web_ports=WEB_PORTS,
+        server_ip=server_ip
+    )
 
 @app.route("/deploy/<image_name>", methods=["POST"])
 def deploy(image_name):

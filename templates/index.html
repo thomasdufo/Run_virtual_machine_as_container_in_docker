@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="mb-4">🚀 Docker Deploy Dashboard</h1>
+<h1 class="mb-4">Docker Deploy Dashboard</h1>
 
 <h2>Images locales</h2>
 <ul class="list-group mb-4">
@@ -30,7 +30,7 @@
         {% for port, host in c.ports.items() %}
           {{ host }} → {{ port }}
           {% if port.split("/")[0]|int == web_ports.get(c.image.split(":")[0], 0) %}
-            <a href="http://localhost:{{ host }}" target="_blank" class="btn btn-link btn-sm">🌐 Ouvrir</a>
+            <a href="http://{{ server_ip }}:{{ host }}" target="_blank" class="btn btn-link btn-sm">🌐 Ouvrir</a>
           {% endif %}
           <br>
         {% endfor %}
