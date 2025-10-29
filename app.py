@@ -8,6 +8,7 @@ client = docker.from_env()
 # 🔹 Ports internes utilisés pour chaque image
 WEB_PORTS = {
     "ubuntu-desktop": 80,
+    "ubuntu-desktop-wireshark": 80,
     "kali": 8080,
     "ubuntu-server": 8080
 }
@@ -18,6 +19,7 @@ def index():
     ALLOWED_IMAGES = [
         "kali:latest",
         "ubuntu-desktop:latest",
+        "ubuntu-desktop-wireshark:latest",
         "ubuntu-server:latest"
     ]
 

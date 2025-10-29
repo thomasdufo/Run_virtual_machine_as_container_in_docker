@@ -8,7 +8,7 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome.list || true
 
 # Mettre à jour et installer quelques utilitaires
 RUN apt update && \
-    apt install -y sudo vim net-tools iproute2 iputils-ping nano curl wget && \
+    apt install -y sudo wireshark vim net-tools iproute2 iputils-ping nano curl wget && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 # Définir l'utilisateur par défaut et mot de passe (optionnel)
