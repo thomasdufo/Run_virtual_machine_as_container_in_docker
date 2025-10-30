@@ -51,5 +51,12 @@
     {% endfor %}
   </tbody>
 </table>
+
+
+        <form method="POST" action="{{ url_for('logout') }}" class="deco">
+            <button type="submit">déconnexion</button>
+        </form>
+
+
 {% endblock %}
 
