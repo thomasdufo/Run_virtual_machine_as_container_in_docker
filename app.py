@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response
 import docker
 import mysql.connector as MC
 from dotenv import load_dotenv
@@ -63,8 +63,50 @@ def connect_db():
 connection = connect_db()
 
 
+@app.route("/login")
+def login():
+    resp = make_response(render_template("login.html"))
+    resp.headers["X-Robots-Tag"] = "noindex, nofollow"
+    return resp
+
+
+
+@app.route("/connection", methods=['POST'])
+def connection():
+    username_input = request.form['username']
+    password_input = request.form['password']
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # On récupère tous les utilisateurs (chiffrés)
+    cursor.execute("SELECT username, password FROM user")
+    users = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    # Comparaison après déchiffrement des données de la base
+    for db_user, db_password in users:
+        username_db = decrypt_data(db_user)
+        password_db = decrypt_data(db_password)
+
+        if username_db == username_input and password_db == password_input:
+            session['user'] = username_input  # Stocke l'utilisateur en session
+            return redirect(url_for('index'))
+
+    # Si aucun utilisateur ne correspond
+    flash("Identifiants incorrects", "error")
+    return redirect(url_for('login'))
+
+
+
+
 @app.route("/")
 def index():
+    if 'user' not in session:  # Vérifie si l'utilisateur est connecté
+        return redirect(url_for('login'))  # Si l'utilisateur n'est pas connecté, redirige vers la page de login
+
     # autorised image
     ALLOWED_IMAGES = [
         "kali:latest",
@@ -157,6 +199,13 @@ def remove(container_id):
     except Exception as e:
         flash(f"Erreur : {str(e)}", "danger")
     return redirect(url_for("index"))
+
+
+@app.route("/logout", methods=['POST'])
+def logout():
+    session.pop('user', None)  # Supprime l'utilisateur de la session
+    return redirect(url_for('login'))  # Redirige vers la page de login après la déconnexion
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
