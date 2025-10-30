@@ -3,7 +3,7 @@ FROM python:3.10
 WORKDIR /app
 
 
-RUN pip install --no-cache-dir flask requests python-dotenv gunicorn docker 
+RUN pip install --no-cache-dir flask docker mysql-connector-python python-dotenv cryptography gunicorn
 #mysql-connector-python cryptography
 
 

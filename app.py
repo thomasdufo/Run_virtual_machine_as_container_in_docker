@@ -7,14 +7,16 @@ import time
 from cryptography.fernet import Fernet
 
 
+load_dotenv() # upload environment varible : .env
+
 
 app = Flask(__name__)
-app.secret_key = "supersecret"
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
 
 SECRET_KEY = os.getenv("SECRET_KEY").encode() # recuperation de la cle secrete depuis le fichier .env
 
 
-load_dotenv() # upload environment varible : .env
 
 cipher = Fernet(SECRET_KEY) # Initialiser l'instance de Fernet pour le chiffrement/déchiffrement
 
@@ -47,8 +49,8 @@ def connect_db():
         try:
             connection = MC.connect(
                 host="mysql",
-                user=decrypt_data('gAAAAABo7ldxgoK5AsLZW3E8-tdRbpekeF79wAbsHSUIw0axPihmvxYWnnpe8iHZMD3YCoxm78fQs5mhAImGejCOuKaRJ36Vyg=='),
-                password=decrypt_data('gAAAAABo7ldxcmA6LyJkQ8XRPcJJ8SEgipM5brbUSGhoaaRkcqX_5wWM1bNiXmuhX1gmTm9aZfKxCle-VUJaXINSdyuKCCUm-A=='),
+                user=decrypt_data('gAAAAABpAzkleB5qvJb9Ig8oc-zTcQzNP3qooXD4nVD5GTtXXnygT6wkG5-a96aEp_3gAmTGspofdhx8VXFp_zZWFsDGixmjkA=='),
+                password=decrypt_data('gAAAAABpAzklPoLY6Tgfj2aVqC66DuIL7ozhQzhdtXCqz-5ORVF_1oR-XttzoVMCKkou9fZNpuwGxzq60L-7pNNgicE3NPORzw=='),
                 database="project_web_site"
             )
             print("Connexion réussie à la base de données !")
@@ -59,15 +61,6 @@ def connect_db():
     return None  # Si échec après 10 tentatives
 
 connection = connect_db()
-
-
-
-
-
-
-
-
-
 
 
 @app.route("/")
