@@ -1,11 +1,27 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import docker
+import mysql.connector as MC
+from dotenv import load_dotenv
+import os
+import time
+from cryptography.fernet import Fernet
+
+
 
 app = Flask(__name__)
 app.secret_key = "supersecret"
-client = docker.from_env()
 
-# 🔹 Ports internes utilisés pour chaque image
+SECRET_KEY = os.getenv("SECRET_KEY").encode() # recuperation de la cle secrete depuis le fichier .env
+
+
+load_dotenv() # upload environment varible : .env
+
+cipher = Fernet(SECRET_KEY) # Initialiser l'instance de Fernet pour le chiffrement/déchiffrement
+
+
+client = docker.from_env() # connect to docker 
+
+# internal port for image
 WEB_PORTS = {
     "ubuntu-desktop": 80,
     "ubuntu-desktop-wireshark": 80,
@@ -13,9 +29,50 @@ WEB_PORTS = {
     "ubuntu-server": 8080
 }
 
+
+
+
+# Chiffrer une donnée
+def encrypt_data(data):
+    return cipher.encrypt(data.encode()).decode()
+
+# Déchiffrer une donnée
+def decrypt_data(data):
+    return cipher.decrypt(data.encode()).decode()
+
+
+# Fonction pour attendre que la base de données soit prête
+def connect_db():
+    for i in range(10):  # Essayer jusqu'à 10 fois
+        try:
+            connection = MC.connect(
+                host="mysql",
+                user=decrypt_data('gAAAAABo7ldxgoK5AsLZW3E8-tdRbpekeF79wAbsHSUIw0axPihmvxYWnnpe8iHZMD3YCoxm78fQs5mhAImGejCOuKaRJ36Vyg=='),
+                password=decrypt_data('gAAAAABo7ldxcmA6LyJkQ8XRPcJJ8SEgipM5brbUSGhoaaRkcqX_5wWM1bNiXmuhX1gmTm9aZfKxCle-VUJaXINSdyuKCCUm-A=='),
+                database="project_web_site"
+            )
+            print("Connexion réussie à la base de données !")
+            return connection
+        except MC.Error as e:
+            print(f"Tentative {i+1}/10 : MySQL pas encore prêt ({e}), attente...")
+            time.sleep(3)  # Attendre 3 secondes avant de réessayer
+    return None  # Si échec après 10 tentatives
+
+connection = connect_db()
+
+
+
+
+
+
+
+
+
+
+
 @app.route("/")
 def index():
-    # 🔹 Images autorisées
+    # autorised image
     ALLOWED_IMAGES = [
         "kali:latest",
         "ubuntu-desktop:latest",
@@ -23,7 +80,7 @@ def index():
         "ubuntu-server:latest"
     ]
 
-    # 🔹 On récupère l'adresse IP utilisée par le navigateur
+    # find ip adrress of browser
     server_ip = request.host.split(":")[0]
 
     # 🔹 Liste filtrée des images locales
