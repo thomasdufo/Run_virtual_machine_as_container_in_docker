@@ -1,0 +1,16 @@
+/* Style du bouton de déconnexion */
+.logout-btn {
+  background-color: #28a745; /* vert */
+  color: white;              /* texte blanc */
+  border: none;              /* pas de bordure */
+  border-radius: 8px;        /* bords arrondis */
+  padding: 12px 24px;        /* espace intérieur */
+  font-size: 16px;
+  cursor: pointer;           /* pointeur main au survol */
+  transition: background-color 0.3s ease;
+}
+
+/* Effet au survol */
+.logout-btn:hover {
+  background-color: #218838; /* vert un peu plus foncé */
+}
